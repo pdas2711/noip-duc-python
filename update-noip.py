@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+# Fill in these fields
+USER_AGENT_CONTACT = "<YOUR EMAIL FOR CONTACT>"
+HOSTNAME = "<YOUR HOSTNAME>"
+USERNAME = "<YOUR USERNAME>"
+PASSWORD = "<YOUR PASSWORD>"
+
+
 import requests
 import datetime
 import os
@@ -7,13 +14,13 @@ from time import sleep
 import re
 
 header = {
-        "User-Agent": "python-requests/" + requests.__version__ + " <YOUR EMAIL FOR CONTACT>"
+        "User-Agent": "python-requests/" + requests.__version__ + " " + USER_AGENT_CONTACT
 }
 
 ip_resolver = "http://ifconfig.me/ip"
-no_ip_host = "<YOUR HOSTNAME>"
-no_ip_user = "<YOUR USERNAME>"  # DDNS Key Username, Email, or Account Username
-no_ip_pass = "<YOUR PASSWORD>"  # DDNS Key Password, or Account Password
+no_ip_host = HOSTNAME
+no_ip_user = USERNAME  # DDNS Key Username, Email, or Account Username
+no_ip_pass = PASSWORD  # DDNS Key Password, or Account Password
 cred_format = no_ip_user + ":" + no_ip_pass
 
 while True:
