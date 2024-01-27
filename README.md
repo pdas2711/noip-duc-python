@@ -6,12 +6,23 @@ This is a DUC (Dynamic Update Client) for No-IP implemented in Python. It makes 
 
 ## Setup
 
-A couple strings need to be edited near the beginning of the script. These are:
+A config file is needed that's available in the same directory as the script. Mandatory fields are:
 
-- `USER_AGENT_CONTACT` - An email address to use as part of the user agent when making GET requests to No-IP. This is in compliance to their guidelines when defining a user agent.
-- `HOSTNAME` - This is your hostname or hostnames (comma-separated field and no spaces when updating more than 1 hostname).
-- `USERNAME` - This is the username for your account. You can use your email or the username you you made after the initial account setup.
-- `PASSWORD` - This is the password to your account.
+```
+email = <YOUR EMAIL>
+hostname = <YOUR NO-IP HOSTNAME/HOSTNAMES>
+username = <YOUR USERNAME>
+password = <YOUR PASSWORD>
+ip-resolver = <PUBLIC IP RESOLVER>
+```
+
+An explanation of the config fields:
+
+- `email` - An email address to use as part of the user agent when making GET requests to No-IP. This is in compliance to their guidelines when defining a user agent. The email with the user agent will also be used when retrieving your public IP from whatever website you choose. Use an email that can be used to contact you and that you are comfortable sharing.
+- `hostname` - This is your hostname or hostnames (comma-separated field and no spaces when updating more than 1 hostname).
+- `username` - This is the username for your account. You can use your email or the username you you made after the initial account setup.
+- `password` - This is the password to your account.
+- `ip-resolver` - This is a website that tells you what your public IP address is. It should return a basic webpage with just your IP address since the script, as of now, doesn't handle webpages with other elements in it. You can use a website like `http://ifconfig.me/ip`.
 
 **IMPORTANT NOTE** for username/password credentials: It is recommended to use DDNS Keys instead of your account login credentials since the DDNS Keys are only used with updating your hostname. This makes these keys discardable and keeps your account dashboard from being accessed in the event where your DDNS Keys are compromised. You can setup your DDNS Keys in when viewing your list of active hostnames in your account dashboard before setting up this script. Make note of the password since it will only be shown *once*. Afterwards, use the DDNS Key credentials in-place of your account credentials for the `USERNAME` and `PASSWORD` field in the script.
 
