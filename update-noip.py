@@ -10,36 +10,25 @@ def print_config(config_file_properties):
     for i in config_file_properties["required"]:
         print("'" + i + "': " + "'" + config_file_properties["required"][i] + "'")
 
-config_properties = {}
+def parse_config(config_string):
+    config_key_values = {}
+    for line_num, prop in enumerate(config_string.split("\n")):
+        if re.match(r" *$", prop) or prop == "" or prop == "\n":
+            continue
+        prop = re.sub("\n", "", prop)
+        key_prop = prop.split("=")[0]
+        key_prop = re.sub(" ", "", key_prop)
+        try:
+            value_prop = prop.split("=")[1]
+        except:
+            print("Invalid syntax on line '" + str(line_num) + "'. Missing equals for key-value pair.")
+            exit()
+        value_prop = re.sub(" ", "", value_prop)
+        config_key_values[key_prop] = value_prop
+    return config_key_values
 
-# Check if config file exists
-
-try:
-    with open("config", "r") as f:
-        CONFIG_FILE = f.read();
-except:
-    print("No file called 'config' found in the current directory. Please create one.")
-    exit()
-
-# Parse each line of the config
-
-for line_num, prop in enumerate(CONFIG_FILE.split("\n")):
-    if re.match(r" *$", prop) or prop == "" or prop == "\n":
-        continue
-    prop = re.sub("\n", "", prop)
-    key_prop = prop.split("=")[0]
-    key_prop = re.sub(" ", "", key_prop)
-    try:
-        value_prop = prop.split("=")[1]
-    except:
-        print("Invalid syntax on line '" + str(line_num) + "'. Missing equals for key-value pair.")
-        exit()
-    value_prop = re.sub(" ", "", value_prop)
-    config_properties[key_prop] = value_prop
-
-# Variables to be used
-
-config_vars = {
+def define_config_vars(config_key_pairs):
+    config_vars = {
         "required": {
             "email": "",
             "hostname": "",
@@ -48,33 +37,47 @@ config_vars = {
             "ip_resolver": ""
             }
         }
+    for prop in config_key_pairs:
+        if prop == "email":
+            config_vars["required"]["email"] = config_key_pairs[prop]
+        elif prop == "hostname":
+            config_vars["required"]["hostname"] = config_key_pairs[prop]
+        elif prop == "username":
+            config_vars["required"]["username"] = config_key_pairs[prop]
+        elif prop == "password":
+            config_vars["required"]["password"] = config_key_pairs[prop]
+        elif prop == "ip-resolver":
+            config_vars["required"]["ip_resolver"] = config_key_pairs[prop]
+        else:
+            print("Unknown value '" + prop + "'.")
+            exit()
+    return config_vars
 
-# Assign properties from config file to variables
+def check_required(config_vars):
+    for i in config_vars["required"]:
+        if config_vars["required"][i] == "":
+            print("Required key '" + i + "' is missing.")
+            exit()
 
-for prop in config_properties:
-    if prop == "email":
-        config_vars["required"]["email"] = config_properties[prop]
-    elif prop == "hostname":
-        config_vars["required"]["hostname"] = config_properties[prop]
-    elif prop == "username":
-        config_vars["required"]["username"] = config_properties[prop]
-    elif prop == "password":
-        config_vars["required"]["password"] = config_properties[prop]
-    elif prop == "ip-resolver":
-        config_vars["required"]["ip_resolver"] = config_properties[prop]
-    else:
-        print("Unknown value '" + prop + "'.")
-        exit()
+
+
+# Check if config file exists
+try:
+    with open("config", "r") as f:
+        CONFIG_FILE = f.read();
+except:
+    print("No file called 'config' found in the current directory. Please create one.")
+    exit()
+
+# Parse each line of the config
+config_key_values = parse_config(CONFIG_FILE)
+
+# Variables to be used
+config_vars = define_config_vars(config_key_values)
 
 # Check if the minimum amount of variables are filled
+check_required(config_vars)
 
-for i in config_vars["required"]:
-    if config_vars["required"][i] == "":
-        print("Required key '" + i + "' is missing.")
-        exit()
-
-
-exit()
 header = {
         "User-Agent": "python-requests/" + requests.__version__ + " " + config_vars["required"]["email"]
 }
