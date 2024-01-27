@@ -130,10 +130,12 @@ config_vars = define_config_vars(config_key_values)
 # Check if the minimum amount of variables are filled
 check_required(config_vars)
 
+# User Agent
 header = {
         "User-Agent": "python-requests/" + requests.__version__ + " " + config_vars["required"]["email"]
 }
 
+# No-IP Credentials
 ip_resolver = config_vars["required"]["ip_resolver"]
 no_ip_host = config_vars["required"]["hostname"]
 no_ip_user = config_vars["required"]["username"]  # DDNS Key Username, Email, or Account Username
@@ -160,15 +162,17 @@ while True:
         prev_ip = ""
         setup = True
     if curr_ip != prev_ip:
-        print("IP has changed.")
+        if not setup:
+            print("IP has changed.")
         with open("noip-previous-ip.txt", "w") as ip_log:
             ip_log.write(curr_ip)
+        if setup:
+            print("Wrote IP to file 'noip-previous-ip.txt'.")
         no_ip_url = "https://" + cred_format + "@dynupdate.no-ip.com/nic/update?hostname=" + no_ip_host + "&myip=" + curr_ip
         print("URL for GET Requests: " + no_ip_url)
         no_ip_response = re.sub("\n", "", str(requests.get(no_ip_url, headers = header).content.decode("UTF-8")))
-        print(no_ip_response)
-        # Check response code
-        check_response_code(no_ip_response)
+        print("No-IP Response Code: '" + no_ip_response + "'")
+        check_response_code(no_ip_response)  # Check response code
     else:
         print("No change to IP")
         log_msg = "\n[" + curr_time + "]: No change. Current IP is " + curr_ip + "."
