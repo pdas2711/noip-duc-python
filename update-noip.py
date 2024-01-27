@@ -1,48 +1,88 @@
 #!/usr/bin/env python
 
-# Fill in these fields
-USER_AGENT_CONTACT = "<YOUR EMAIL FOR CONTACT>"
-HOSTNAME = "<YOUR HOSTNAME>"
-USERNAME = "<YOUR USERNAME>"
-PASSWORD = "<YOUR PASSWORD>"
-
-
 import requests
 import datetime
 import os
 from time import sleep
 import re
 
+def print_config(config_file_properties):
+    for i in config_file_properties["required"]:
+        print("'" + i + "': " + "'" + config_file_properties["required"][i] + "'")
+
 config_properties = {}
+
+# Check if config file exists
 
 try:
     with open("config", "r") as f:
-        CONFIG_FILE = f.readlines();
+        CONFIG_FILE = f.read();
 except:
     print("No file called 'config' found in the current directory. Please create one.")
     exit()
 
-for line_num, prop in enumerate(CONFIG_FILE):
+# Parse each line of the config
+
+for line_num, prop in enumerate(CONFIG_FILE.split("\n")):
+    if re.match(r" *$", prop) or prop == "" or prop == "\n":
+        continue
     prop = re.sub("\n", "", prop)
-    try:
-        key_prop = prop.split("=")[0]
-    except:
-        print("Invalid syntax on line " + line_num + ". Missing equals for key-value pair.")
-        exit()
+    key_prop = prop.split("=")[0]
     key_prop = re.sub(" ", "", key_prop)
-    value_prop = prop.split("=")[1]
+    try:
+        value_prop = prop.split("=")[1]
+    except:
+        print("Invalid syntax on line '" + str(line_num) + "'. Missing equals for key-value pair.")
+        exit()
     value_prop = re.sub(" ", "", value_prop)
     config_properties[key_prop] = value_prop
 
+# Variables to be used
+
+config_vars = {
+        "required": {
+            "email": "",
+            "hostname": "",
+            "username": "",
+            "password": "",
+            "ip_resolver": ""
+            }
+        }
+
+# Assign properties from config file to variables
+
+for prop in config_properties:
+    if prop == "email":
+        config_vars["required"]["email"] = config_properties[prop]
+    elif prop == "hostname":
+        config_vars["required"]["hostname"] = config_properties[prop]
+    elif prop == "username":
+        config_vars["required"]["username"] = config_properties[prop]
+    elif prop == "password":
+        config_vars["required"]["password"] = config_properties[prop]
+    elif prop == "ip-resolver":
+        config_vars["required"]["ip_resolver"] = config_properties[prop]
+    else:
+        print("Unknown value '" + prop + "'.")
+        exit()
+
+# Check if the minimum amount of variables are filled
+
+for i in config_vars["required"]:
+    if config_vars["required"][i] == "":
+        print("Required key '" + i + "' is missing.")
+        exit()
+
+
 exit()
 header = {
-        "User-Agent": "python-requests/" + requests.__version__ + " " + USER_AGENT_CONTACT
+        "User-Agent": "python-requests/" + requests.__version__ + " " + config_vars["required"]["email"]
 }
 
-ip_resolver = "http://ifconfig.me/ip"
-no_ip_host = HOSTNAME
-no_ip_user = USERNAME  # DDNS Key Username, Email, or Account Username
-no_ip_pass = PASSWORD  # DDNS Key Password, or Account Password
+ip_resolver = config_vars["required"]["ip_resolver"]
+no_ip_host = config_vars["required"]["hostname"]
+no_ip_user = config_vars["required"]["username"]  # DDNS Key Username, Email, or Account Username
+no_ip_pass = config_vars["required"]["password"]  # DDNS Key Password, or Account Password
 cred_format = no_ip_user + ":" + no_ip_pass
 
 while True:
