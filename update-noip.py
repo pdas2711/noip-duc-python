@@ -5,10 +5,17 @@ import datetime
 import os
 from time import sleep
 import re
+from sys import argv
 
-def print_config(config_file_properties):
-    for i in config_file_properties["required"]:
-        print("'" + i + "': " + "'" + config_file_properties["required"][i] + "'")
+def gen_config():
+    print("If you already have an existing config, the template will be appended to avoid overwriting the config.")
+    config_string = "hostname = \"\"\nemail = \"\"\nusername = \"\"\npassword = \"\"\nip-resolver = \"\""
+    with open("config", "a") as config_gen:
+        config_gen.write(config_string)
+    print("Your config file is currently:")
+    with open("config", "r") as config_print:
+        print(config_print.read())
+    exit()
 
 def parse_config(config_string):
     config_key_values = {}
@@ -52,6 +59,14 @@ def define_config_vars(config_key_pairs):
             print("Unknown value '" + prop + "'.")
             exit()
     return config_vars
+
+def print_config_vars():
+    check_config()
+    with open("config", "r") as f:
+        config_file = f.read()
+    config_file_properties = define_config_vars(parse_config(config_file))
+    for i in config_file_properties["required"]:
+        print("'" + i + "': " + "'" + config_file_properties["required"][i] + "'")
 
 def check_required(config_vars):
     for i in config_vars["required"]:
@@ -111,18 +126,29 @@ def check_response_code(no_ip_response):
             logs.write(log_msg)
         exit()
 
+def check_config():
+    try:
+        with open("config", "r") as f:
+            config_file = f.read();
+        return config_file
+    except:
+        print("No file called 'config' found in the current directory. Please create one. Pass the '--gen-config-template' flag to generate a template for the config file in the current working directory.")
+        exit()
 
 
-# Check if config file exists
-try:
-    with open("config", "r") as f:
-        CONFIG_FILE = f.read();
-except:
-    print("No file called 'config' found in the current directory. Please create one.")
+if len(argv) == 2:
+    args = argv[1]
+    if args == "gen-config-template":
+        gen_config()
+    elif args == "print-config":
+        print_config_vars()
     exit()
 
+# Check if config file exists
+config_file = check_config()
+
 # Parse each line of the config
-config_key_values = parse_config(CONFIG_FILE)
+config_key_values = parse_config(config_file)
 
 # Variables to be used
 config_vars = define_config_vars(config_key_values)
