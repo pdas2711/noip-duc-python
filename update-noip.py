@@ -146,13 +146,13 @@ while True:
     setup = False
     curr_time = datetime.datetime.now().strftime("%Y-%m-%d | %H:%M:%S")
     try:
-        curr_ip = str(requests.get(config_vars["required"]["ip_resolver"], headers = header).content.decode("UTF-8"))
+        curr_ip = str(requests.get(ip_resolver, headers = header).content.decode("UTF-8"))
         print("Current IP: " + curr_ip)
     except:
-        log_msg = "\n[" + curr_time + "]: Error. Cannot resolve. Either DNS is configured incorrectly, there's no internet connectivity, or '" + config_vars["required"]["ip_resolver"] + "' is down."
+        log_msg = "\n[" + curr_time + "]: Error. Cannot resolve. Either DNS is configured incorrectly, there's no internet connectivity, or '" + ip_resolver + "' is down."
         with open("noip-log.txt", "a") as logs:
             logs.write(log_msg)
-        print("Cannot connect to retrieve ip.")
+        print("Cannot connect to '" + ip_resolver + "' retrieve ip.")
         sleep(60)
         continue
     try:
