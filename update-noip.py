@@ -13,6 +13,28 @@ import os
 from time import sleep
 import re
 
+config_properties = {}
+
+try:
+    with open("config", "r") as f:
+        CONFIG_FILE = f.readlines();
+except:
+    print("No file called 'config' found in the current directory. Please create one.")
+    exit()
+
+for line_num, prop in enumerate(CONFIG_FILE):
+    prop = re.sub("\n", "", prop)
+    try:
+        key_prop = prop.split("=")[0]
+    except:
+        print("Invalid syntax on line " + line_num + ". Missing equals for key-value pair.")
+        exit()
+    key_prop = re.sub(" ", "", key_prop)
+    value_prop = prop.split("=")[1]
+    value_prop = re.sub(" ", "", value_prop)
+    config_properties[key_prop] = value_prop
+
+exit()
 header = {
         "User-Agent": "python-requests/" + requests.__version__ + " " + USER_AGENT_CONTACT
 }
